@@ -27,7 +27,7 @@ cmdstanr::set_cmdstan_path(path = file.path(packages, "cmdstan-2.32.2"))
 
 db <- DBI::dbConnect(RSQLite::SQLite(), "minipdb.sqlite")
 
-dfprograms <- DBI::dbGetQuery(db, "SELECT * FROM Program")
+dfprogram <- DBI::dbGetQuery(db, "SELECT * FROM Program")
 model_names <- dfprograms$model
 
 dfmeta <- DBI::dbGetQuery(db, "SELECT * FROM Meta")
@@ -35,7 +35,7 @@ dfmeta <- DBI::dbGetQuery(db, "SELECT * FROM Meta")
 run_models <- function(model_index,
                        modelnames = model_names,
                        modeldir = model_dir,
-                       dfp = dfprograms,
+                       dfp = dfprogram,
                        dfm = dfmeta,
                        database = db) {
     model_name <- modelnames[model_index]
