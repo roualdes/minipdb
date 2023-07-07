@@ -22,16 +22,16 @@ Table `Program` contains columns: `model_name`, `code`, and `data`.  Each row of
 this table is a Stan program comprised of a name `model_name`, the Stan
 file stored in `code`, and JSON dats stored in `data`.
 
-Table `Meta` contains all the information necessary to recreate the reference
-draws stored in table `x` (see below) when run in CmdStanR.  Table `Meta` has
-columns: `model_name`, `iter_warmup`, `iter_sampling`, `chains`,
-`parallel_chains`, `thin`, `seed`, `adapt_delta`, `max_treedepth`, and
-`sig_figs`.
+Table `Meta` contains all the sampling algorithm parameters necessary to
+recreate the reference draws stored in table `x` (see below) when run in
+CmdStanR.  Table `Meta` has columns: `model_name`, `iter_warmup`,
+`iter_sampling`, `chains`, `parallel_chains`, `thin`, `seed`, `adapt_delta`,
+`max_treedepth`, and `sig_figs`.
 
 Table `x`, where `x` represents a model name matching the values in table
 `Program`'s column `model_name`, contains the reference draws as sampled via
 CmdStanR using the sampling parameters stored in table `Meta`.  Reference draws
-for all parameters and transformed parameters are stored are on the constrained
+for all parameters and transformed parameters are stored on the constrained
 scale, even though Stan samples on the unconstrained scale.
 
 Table `x_diagnostics` contains all the information output from CmdStanR's
@@ -47,10 +47,11 @@ output from CmdStanR's function
 
 ## Dependencies
 
-The statistical programming language [R](https://www.r-project.org/), R packages
-`posteriordb`, `dplyr`, `DBI`, `RSQLite`, `jsonlite`, `rlang`, `httr`,
-`posterior`, `withr`, and `cmdstanr`.  The package `cmdstanr` itself has
-dependencies on [CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and
-a suitable C++ toolchain.  The documentation for a [CmdStan
+`minipdb` relies on the statistical programming language
+[R](https://www.r-project.org/), and the following R packages: `posteriordb`,
+`dplyr`, `DBI`, `RSQLite`, `jsonlite`, `rlang`, `httr`, `posterior`, `withr`,
+`cmdstanr`.  The package `cmdstanr` itself has dependencies on
+[CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and a suitable C++
+toolchain.  The documentation for a [CmdStan
 Installation](https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html)
 has instructions for getting a suitable C++ toolchain setup.
