@@ -2,9 +2,12 @@ cwd <- getwd()
 packages <- file.path(cwd, "packages")
 dir.create(packages)
 
+model_dir <- file.path(cwd, "models")
+dir.create(model_dir)
+
 r <- getOption("repos")
 r["CRAN"] <- "https://cloud.r-project.org"
-install.packages(c("DBI", "RSQLite", "jsonlite"),
+install.packages(c("DBI", "RSQLite", "jsonlite", "posterior", "withr"),
                  repos = r, lib = packages, destdir = packages)
 
 install.packages("cmdstanr",
@@ -31,32 +34,32 @@ dfmeta <- DBI::dbGetQuery(db, "SELECT * FROM Meta")
 
 run_models <- function(model_index,
                        modelnames = model_names,
-                       wd = cwd,
+                       modeldir = model_dir,
                        dfp = dfprograms,
                        dfm = dfmeta,
                        database = db) {
     model_name <- modelnames[model_index]
 
     cmdstanr::write_stan_file(dfp[model_index, "code"],
-                              dir = file.path(wd, model_name),
+                              dir = file.path(modeldir, model_name),
                               basename = model_name,
                               force_overwrite = TRUE)
 
     cmdstanr::write_stan_json(jsonlite::fromJSON(dfp[model_index, "data"]),
-                              file = file.path(wd, model_name, paste0(model_name, ".json")))
+                              file = file.path(modeldir, model_name, paste0(model_name, ".json")))
 
-    stan_file <- file.path(wd, model_name, paste0(model_name, ".stan"))
+    stan_file <- file.path(modeldir, model_name, paste0(model_name, ".stan"))
     mod <- cmdstanr::cmdstan_model(stan_file)
-    stan_data <- file.path(wd, model_name, paste0(model_name, ".json"))
+    stan_data <- file.path(modeldir, model_name, paste0(model_name, ".json"))
 
     info <- dfm[model_index, ]
 
     ## draws
     fit <- mod$sample(data = stan_data,
-                      iter_warmup = 500, # info$iter_warmup,
-                      iter_sampling = 500, # info$iter_sampling,
-                      chains = 4, # info$chains,
-                      parallel_chains = 2, # info$parallel_chains,
+                      iter_warmup = info$iter_warmup,
+                      iter_sampling = info$iter_sampling,
+                      chains = info$chains,
+                      parallel_chains = info$parallel_chains,
                       thin = info$thin,
                       seed = info$seed,
                       adapt_delta = info$adapt_delta,
@@ -77,6 +80,6 @@ run_models <- function(model_index,
 }
 
 ## possibly filter/reduce model_names, e.g.
-model_names <- model_names[1]
+## model_names <- model_names[1]
 
 parallel::mclapply(seq_along(model_names), run_models, mc.cores = 1)
