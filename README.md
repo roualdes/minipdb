@@ -31,8 +31,9 @@ $x$**_metric** ...
 
 ## Dependencies
 
-R packages `posteriordb`, `dplyr`, `DBI`, `RSQLite`, `jsonlite`, `rlang`,
-`httr`, and `cmdstanr`.  The package `cmdstanr` itself has dependencies on
+The statistical programming language [R](https://www.r-project.org/), R packages
+`posteriordb`, `dplyr`, `DBI`, `RSQLite`, `jsonlite`, `rlang`, `httr`, and
+`cmdstanr`.  The package `cmdstanr` itself has dependencies on
 [CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and a suitable C++
 toolchain.  The documentation for a [CmdStan
 Installation](https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html)
