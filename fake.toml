@@ -1,0 +1,9 @@
+model_name = "FakeExample"
+stan_file = "fake.stan"
+json_data = "fake.json"
+
+[meta]
+iter_sampling = 15_000
+iter_warmup = 10_000
+chains = 12
+seed = 535

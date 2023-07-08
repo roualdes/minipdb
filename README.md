@@ -77,8 +77,8 @@ stan_file = "path/to/model.stan"
 json_data = "path/to/data.json"
 
 [meta]
-iter_warmup = Int # defaults to 10000
-iter_sampling = Int # defaults iter_warmup
+iter_sampling = Int # defaults 10_000
+iter_warmup = Int # defaults to iter_sampling
 chains = Int # defaults to 10
 parallel_chains = Int # defaults to chains
 thin = Int # defaults to 10
@@ -102,20 +102,22 @@ resulting reference draws in a table named `SomeModel`.
 If the flag `--overwrite` is present, then `run` overwrites the reference draws
 in the database.
 
-### edit
+TODO Should this be named store, instead of run?  Or maybe create?
 
-Edit the meta data and/or model name of a uniquely identified Stan program.
+### update
+
+Update the meta data and/or model name of a uniquely identified Stan program.
 
 ```
-python3 minipdb.py edit stan_program.toml
+python3 minipdb.py update stan_program.toml
 ```
 
 where `stan_program.toml` looks like the example above, except the defaults are
 now set by the corresponding values in Meta for the specified model name.
 
-TODO what to do when a model's meta data is `edit`ed, but not yet re-run?
+TODO what to do when a model's meta data is `update`ed, but not yet re-run?
 
-If `edit`ing the meta data of a model, maybe the user should consider if two
+If `update`ing the meta data of a model, maybe the user should consider if two
 models with similar names and different meta data is more appropriate.
 
 ### delete
