@@ -1,9 +1,10 @@
-model_name = "FakeExample"
+model_name = "Fake"
 stan_file = "fake.stan"
 json_data = "fake.json"
 
 [meta]
-iter_sampling = 15_000
-iter_warmup = 10_000
-chains = 12
+iter_sampling = 3512
+iter_warmup = 2000
+chains = 2
 seed = 535
+thin = 1

@@ -5,134 +5,158 @@ import tomllib
 import sys
 import random
 import string
+import json
+import cmdstanpy
+
+import numpy as np
 import pandas as pd
+
+from multiprocessing import Pool, cpu_count
 
 
 def error_message(var, toml, msg):
     return f'Variable {var} in {toml} must ' + msg
 
-def init_checks(meta):
-    if 'model_name' not in meta:
-        sys.exit(f'No model name specified, please specify model_name in {args.toml} and add again.')
+def init_checks(toml, tomlfile):
+    if 'model_name' not in toml:
+        sys.exit(f'No model name specified, please specify model_name in {tomlfile} and add again.')
     else:
-        if not meta['model_name'][0].isupper():
-            raise TypeError(error_message('model_name', args.toml, 'begin with an upper case ACII character'))
+        if not toml['model_name'][0].isupper():
+            raise TypeError(error_message('model_name', tomlfile, 'begin with an upper case ACII character'))
 
         allowed_chars = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '-' + '_')
-        if not set(meta['model_name']) <= allowed_chars:
-            raise ValueError(error_message('model_name', args.toml, 'contain only ACII characters, digits, _-'))
+        if not set(toml['model_name']) <= allowed_chars:
+            raise ValueError(error_message('model_name', tomlfile, 'contain only ACII characters, digits, _-'))
 
 
-    if 'stan_file' not in meta:
-        sys.exit(f'No Stan file specified, please specify stan_file in {args.toml} and add again.')
+    if 'stan_file' not in toml:
+        sys.exit(f'No Stan file specified, please specify stan_file in {tomlfile} and add again.')
     else:
-        if type(meta['stan_file']) is not str:
-            raise TypeError(error_message('stan_file', args.toml, 'be a string.'))
+        if type(toml['stan_file']) is not str:
+            raise TypeError(error_message('stan_file', tomlfile, 'be a string.'))
 
-        f = pathlib.Path(meta['stan_file'])
+        f = pathlib.Path(toml['stan_file'])
         if not f.is_file():
-            raise ValueError(error_message('stan_file', args.toml, 'exist.'))
+            raise ValueError(error_message('stan_file', tomlfile, 'exist.'))
 
 
-    if 'json_data' not in meta:
-        sys.exit('No JSON data specified, please specify json_data in {args.toml} and add again.')
+    if 'json_data' not in toml:
+        sys.exit('No JSON data specified, please specify json_data in {tomlfile} and add again.')
     else:
-        if type(meta['json_data']) is not str:
-            raise TypeError(error_message('json_data', args.toml, 'be a string.'))
+        if type(toml['json_data']) is not str:
+            raise TypeError(error_message('json_data', tomlfile, 'be a string.'))
 
-        f = pathlib.Path(meta['json_data'])
+        f = pathlib.Path(toml['json_data'])
         if not f.is_file():
-            raise ValueError(error_message('json_data', args.toml, 'exist.'))
+            raise ValueError(error_message('json_data', tomlfile, 'exist.'))
 
 
-    if 'iter_sampling' not in meta:
-        meta['iter_sampling'] = 10_000
+    if 'iter_sampling' not in toml['meta']:
+        toml['iter_sampling'] = 10_000
     else:
-        if meta['iter_sampling'] is not int:
-            raise TypeError(error_message('iter_sampling', args.toml, 'be an integer.'))
+        if type(toml['meta']['iter_sampling']) is not int:
+            raise TypeError(error_message('iter_sampling', tomlfile, 'be an integer.'))
 
-        if not 2_000 <= meta['iter_sampling'] or not meta['iter_sampling'] <= 1_000_000:
-            raise ValueError(error_message('iter_sampling', args.toml, 'be an integer in 2_000:1_000_000.'))
+        if not 2_000 <= toml['meta']['iter_sampling'] or not toml['meta']['iter_sampling'] <= 1_000_000:
+            raise ValueError(error_message('iter_sampling', tomlfile, 'be an integer in 2_000:1_000_000.'))
+
+        toml['iter_sampling'] = toml['meta']['iter_sampling']
 
 
-    if 'iter_warmup' not in meta:
-        meta['iter_warmup'] = meta['iter_sampling']
+    if 'iter_warmup' not in toml['meta']:
+        toml['iter_warmup'] = toml['meta']['iter_sampling']
     else:
-        if type(meta['iter_warmup']) is not int:
-            raise TypeError(error_message('iter_warmup', args.toml, 'be an integer.'))
+        if type(toml['meta']['iter_warmup']) is not int:
+            raise TypeError(error_message('iter_warmup', tomlfile, 'be an integer.'))
 
-        if not 2_000 <= meta['iter_warmup'] or not meta['iter_warmup'] <= 1_000_000:
-            raise ValueError(error_message('iter_sampling', args.toml, 'be an integer in 2_000:1_000_000.'))
+        if not 2_000 <= toml['meta']['iter_warmup'] or not toml['meta']['iter_warmup'] <= 1_000_000:
+            raise ValueError(error_message('iter_sampling', tomlfile, 'be an integer in 2_000:1_000_000.'))
+
+        toml['iter_warmup'] = toml['meta']['iter_warmup']
 
 
-    if 'chains' not in meta:
-        meta['chains'] = 10
+    if 'chains' not in toml['meta']:
+        toml['chains'] = 10
     else:
-        if type(meta['chains']) is not int:
-            raise TypeError(error_message('chains', args.toml, 'be an integer.'))
+        if type(toml['meta']['chains']) is not int:
+            raise TypeError(error_message('chains', tomlfile, 'be an integer.'))
 
-        if not 1 <= meta['chains']:
-            raise ValueError(error_message('chains', args.toml, 'be an integer greater than zero.'))
+        if not 1 <= toml['meta']['chains']:
+            raise ValueError(error_message('chains', tomlfile, 'be an integer greater than zero.'))
+
+        toml['chains'] = toml['meta']['chains']
 
 
-    if 'parallel_chains' not in meta:
-        meta['parallel_chains'] = meta['chains']
+    if 'parallel_chains' not in toml['meta']:
+        toml['parallel_chains'] = toml['chains']
     else:
-        if type(meta['parallel_chains']) is not int:
-            raise TypeError(error_message('chains', args.toml, 'be an integer.'))
+        if type(toml['meta']['parallel_chains']) is not int:
+            raise TypeError(error_message('chains', tomlfile, 'be an integer.'))
 
-        if not 1 <= meta['parallel_chains'] or not meta['parallel_chains'] <= meta['chains']:
-            raise ValueError(error_message('parallel_chains', args.toml, f'be an integer in 1:{meta["chains"]}'))
+        if not 1 <= toml['meta']['parallel_chains'] or not toml['meta']['parallel_chains'] <= toml['meta']['chains']:
+            raise ValueError(error_message('parallel_chains', tomlfile, f'be an integer in 1:{toml["meta"]["chains"]}'))
+
+        toml['parallel_chains'] = toml['meta']['parallel_chains']
 
 
-    if 'thin' not in meta:
-        meta['thin'] = 10
+    if 'thin' not in toml['meta']:
+        toml['thin'] = 1
     else:
-        if type(meta['thin']) is not int:
-            raise TypeError(error_message('thin', args.toml, 'be an integer.'))
+        if type(toml['meta']['thin']) is not int:
+            raise TypeError(error_message('thin', tomlfile, 'be an integer.'))
 
-        if not 1 <= meta['thin'] or not meta['thin'] <= meta['iter_sampling']:
-            raise ValueError(error_message('thin', args.toml, f'be an integer between 1 and {meta["iter_sampling"]}.'))
+        if not 1 <= toml['meta']['thin'] or not toml['meta']['thin'] <= toml['meta']['iter_sampling']:
+            raise ValueError(error_message('thin', tomlfile, f'be an integer between 1 and {toml["meta"]["iter_sampling"]}.'))
+
+        toml['thin'] = toml['meta']['thin']
 
 
-    if 'seed' not in meta:
-        meta['seed'] = random.randint(0, 4_294_967_295)
+    if 'seed' not in toml['meta']:
+        toml['seed'] = random.randint(0, 4_294_967_295)
     else:
-        if type(meta['seed']) is not int:
-            raise TypeError(error_message('seed', args.toml, 'be an integer.'))
+        if type(toml['meta']['seed']) is not int:
+            raise TypeError(error_message('seed', tomlfile, 'be an integer.'))
 
-        if not 0 <= meta['seed'] or not meta['seed'] <= 4_294_967_295:
-            raise ValueError(error_message('seed', args.toml, 'be an integer in 0:4_294_967_295.'))
+        if not 0 <= toml['meta']['seed'] or not toml['meta']['seed'] <= 4_294_967_295:
+            raise ValueError(error_message('seed', tomlfile, 'be an integer in 0:4_294_967_295.'))
+
+        toml['seed'] = toml['meta']['seed']
 
 
-    if 'adapt_delta' not in meta:
-        meta['adapt_delta'] = 0.8
+    if 'adapt_delta' not in toml['meta']:
+        toml['adapt_delta'] = 0.8
     else:
-        if type(meta['adapt_delta']) is not float:
-            raise TypeError(error_message('adapt_delta', args.toml, 'be a float.'))
+        if type(toml['meta']['adapt_delta']) is not float:
+            raise TypeError(error_message('adapt_delta', tomlfile, 'be a float.'))
 
-        if not 0 < meta['adapt_delta'] or not meta['adapt_delta'] < 1:
-            raise ValueError(error_message('adapt_delta', args.toml, 'be a float in (0, 1).'))
+        if not 0 < toml['meta']['adapt_delta'] or not toml['meta']['adapt_delta'] < 1:
+            raise ValueError(error_message('adapt_delta', tomlfile, 'be a float in (0, 1).'))
+
+        toml['adapt_delta'] = toml['meta']['adapt_delta']
 
 
-    if 'max_treedepth' not in meta:
-        meta['max_treedepth'] = 10
+    if 'max_treedepth' not in toml['meta']:
+        toml['max_treedepth'] = 10
     else:
-        if type(meta['max_treedepth']) is not int:
-            raise TypeError(error_message('max_treedepth', args.toml, 'be an integer.'))
+        if type(toml['meta']['max_treedepth']) is not int:
+            raise TypeError(error_message('max_treedepth', tomlfile, 'be an integer.'))
 
-        if not 1 <= meta['max_treedepth'] or not meta['max_treedepth'] <= 20:
-            raise ValueError(error_message('max_treedepth', args.toml, 'be an integer in 1:20.'))
+        if not 1 <= toml['meta']['max_treedepth'] or not toml['meta']['max_treedepth'] <= 20:
+            raise ValueError(error_message('max_treedepth', tomlfile, 'be an integer in 1:20.'))
+
+        toml['max_treedepth'] = toml['meta']['max_treedepth']
 
 
-    if 'sig_figs' not in meta:
-        meta["sig_figs"] = 16
+    if 'sig_figs' not in toml['meta']:
+        toml["sig_figs"] = 16
     else:
-        if type(meta['sig_figs']) is not int:
-            raise TypeError(error_message('sig_figs', args.toml, 'be an integer.'))
+        if type(toml['meta']['sig_figs']) is not int:
+            raise TypeError(error_message('sig_figs', tomlfile, 'be an integer.'))
 
-        if not 1 <= meta['sig_figs'] or not meta['sig_figs'] <= 18:
-            raise ValueError(error_message('sig_figs', args.toml, 'be an integer in 1:18.'))
+        if not 1 <= toml['meta']['sig_figs'] or not toml['meta']['sig_figs'] <= 18:
+            raise ValueError(error_message('sig_figs', tomlfile, 'be an integer in 1:18.'))
+
+        toml['sig_figs'] = toml['meta']['sig_figs']
 
 """
 Initialize a Stan program into the database, without storing reference draws.
@@ -152,130 +176,287 @@ See also the :command:`add` which will both :command:`init` and :command:`run`
 in one step.
 """
 def init(args):
-    with open(args.toml, 'rb') as f:
-        meta = tomllib.load(f)
+    tomlfile = args.toml
+    with open(tomlfile, 'rb') as f:
+        toml = tomllib.load(f)
 
-    init_checks(meta)
+    init_checks(toml, tomlfile)
 
-    print(f'Initializting {meta["model_name"]}...')
+    print(f'Initializting {toml["model_name"]}...')
     database = args.database
     db = sqlite3.connect(database)
 
-    dfprogram = pd.read_sql_query('SELECT * FROM Program', db)
-    exists_in_program = meta['model_name'] in dfprogram['model_name']
+    exists_in_program = False
+    try:
+        dfprogram = pd.read_sql_query('SELECT * FROM Program', db)
+        exists_in_program = toml['model_name'] in dfprogram['model_name'].values
+    except:
+        pass
 
-    dfmeta = pd.read_sql_query('SELECT * FROM Meta', db)
-    exists_in_meta = meta['model_name'] in dfmeta['model_name']
+    exists_in_meta = False
+    try:
+        dfmeta = pd.read_sql_query('SELECT * FROM Meta', db)
+        exists_in_meta = toml['model_name'] in dfmeta['model_name'].values
+    except:
+        pass
 
-    dfdiagnostics = pd.read_sql_query(f'SELECT * FROM {args.model}_diagnostics', db)
-    exists_in_diagnostics = meta['model_name'] in dfdiagnostics['model_name']
+    exists_in_diagnostics = False
+    try:
+        dfdiagnostics = pd.read_sql_query(f'SELECT * FROM {toml["model_name"]}_diagnostics', db)
+        exists_in_diagnostics = toml['model_name'] in dfdiagnostics['model_name'].values
+    except:
+        pass
 
-    dfmetric = pd.read_sql_query(f'SELECT * FROM {args.model}_metric', db)
-    exists_in_metric = meta['model_name'] in dfmetric['model_name']
+    exists_in_metric = False
+    try:
+        dfmetric = pd.read_sql_query(f'SELECT * FROM {toml["model_name"]}_metric', db)
+        exists_in_metric = toml['model_name'] in dfmetric['model_name'].values
+    except:
+        pass
 
     exists = [exists_in_program, exists_in_meta, exists_in_diagnostics, exists_in_metric]
     if sum(exists) == 1:
-        sys.exit(f'A Stan program with model name {meta["model_name"]} exists in some {args.database} table.  Something wrong happened.  Fix it.')
+        sys.exit(f'A Stan program with model name {toml["model_name"]} exists in some {args.database} table.  Something wrong happened.  Fix it.')
 
     if all(exists):
-        sys.exit(f'A Stan program with model name {meta["model_name"]} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name.')
+        sys.exit(f'A Stan program with model name {toml["model_name"]} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name.')
 
-    with open(meta['stan_file'], 'r') as f:
-        meta['code'] = f.readlines()
+    with open(toml['stan_file'], 'r') as f:
+        toml['code'] = ''.join(f.readlines())
 
-    with open(meta['json_data'], 'r') as f:
-        meta['data'] = f.readlines()
+    with open(toml['json_data'], 'r') as f:
+        toml['data'] = ''.join(f.readlines())
 
-    db.execute('INSERT INTO Program VALUES(:model_name, :code, :data)', meta)
-    db.execute('INSERT INTO Meta VALUES(:model_name, :iter_warmup, :iter_sampling, :chains, :parallel_chains, :thin, :seed, :adapt_delta, :max_treedepth, :sig_figs)', meta)
+    db.execute('INSERT INTO Program VALUES(:model_name, :code, :data)', toml)
+    db.execute('INSERT INTO Meta VALUES(:model_name, :iter_warmup, :iter_sampling, :chains, :parallel_chains, :thin, :seed, :adapt_delta, :max_treedepth, :sig_figs)', toml)
 
+    db.commit()
     db.close()
     print('Done.')
+
+
+
+def table_exists(database):
+    tbl_exists = False
+    try:
+        cursor = database.cursor()
+        tables = cursor.execute('SELECT name FROM sqlite_master WHERE type="table";')
+        for table in tables:
+            if args.model == table:
+                tbl_exists = True
+                break
+    except:
+        return False
+    return tbl_exists
+
+
+"""
+Run a Stan program using CmdStanPy.  The Stan model code and data are pulled
+from database table Program.  The sampling algorithm parameters are pulled from
+database table Meta.  As such, the Stan program must be :command:`init` first.
+"""
+def run_model(model_name: str, models_dir: str = "", dfp: str  = "", dfm: str = "", db: str = ""):
+
+    idx = dfp['model_name'] == model_name
+    code = dfp[idx]['code'][0]
+
+    model_dir = pathlib.Path(models_dir) / model_name
+    pathlib.Path(model_dir).mkdir(parents = True, exist_ok = True)
+    stan_file_path = model_dir / (model_name + '.stan')
+    with open(stan_file_path, 'w') as f:
+        f.write(code)
+
+    data = json.loads(dfp[idx]['data'][0])
+    data_file_path = model_dir / (model_name + '.json')
+    cmdstanpy.write_stan_json(data_file_path, data)
+
+    stan_file = str(stan_file_path)
+    data_file = str(data_file_path)
+    model = cmdstanpy.CmdStanModel(stan_file = stan_file)
+
+    info = dfm[idx].to_dict(orient = 'index')[0]
+    fit = model.sample(data = data_file,
+                       iter_sampling = info['iter_sampling'],
+                       iter_warmup = info['iter_warmup'],
+                       chains = info['chains'],
+                       parallel_chains = info['parallel_chains'],
+                       thin = info['thin'],
+                       seed = info['seed'],
+                       adapt_delta = info['adapt_delta'],
+                       max_treedepth = info['max_treedepth'],
+                       sig_figs = info['sig_figs'])
+
+    df = fit.draws_pd()
+    df.to_sql(f'{model_name}', db, if_exists = 'replace', index = False)
+
+    M = fit.metric.T
+    col_names = ['chain_' + str(c + 1) for c in range(np.shape(M)[1])]
+    dfmetric = pd.DataFrame(M, columns = col_names)
+    dfmetric.to_sql(f'{model_name}_metric', db, if_exists = 'replace', index = False)
 
 
 """
 Run an already :command:`init`ed Stan program and store the resulting reference draws.
 """
-def run(args):
-    print(f'Run model {args.model} and store reference draws.')
+def run(args: dict):
+    model_name = args.model
 
-    if args.overwrite:
-        print('overwrite turned on')
+    if args.all_models:
+        print(f'Running and storing reference draws for all models in database...')
+    else:
+        print(f'Running model {model_name} and storing reference draws...')
 
-    # TODO check about overwriting
-    # TODO check model has been `init`ed.
+    database = args.database
+    db = sqlite3.connect(database)
+
+    dfprogram = pd.read_sql_query('SELECT * FROM Program', db)
+    exists_in_program = model_name in dfprogram['model_name'].values
+
+    dfmeta = pd.read_sql_query('SELECT * FROM Meta', db)
+    exists_in_meta = model_name in dfmeta['model_name'].values
+
+    if sum([exists_in_program, exists_in_meta]) == 0:
+        sys.exit(f'Program {args.model} does not exists in database, please init first.')
+
+    if table_exists(db) and args.overwrite:
+        print('overwrite turned on...')
+        if not args.yes:
+            ans = input(f'This operation will overwrite all previous reference draws.\n\nType Yes to continue: ')
+            if ans != 'Yes':
+                sys.exit('Run canceled.')
+
+    model_folder = pathlib.Path().resolve() / 'models'
+
+    def runmodel(model_name):
+        run_model(model_name,
+                  models_dir = model_folder,
+                  dfp = dfprogram,
+                  dfm = dfmeta,
+                  db = db)
+
+    if args.all_models:
+        model_names = dfprogram['model_name']
+        with Pool(args.cpus) as p:
+            p.map(runmodel, model_names)
+    else:
+        runmodel(args.model)
+
+    db.close()
+    print('Done.')
 
 
-def runall(args):
-    print(f'Run model {args.model} and store reference draws.')
-    # TODO print informative message and double check
+def update(args: dict):
+    print(f'Updating meta information using information in {args.toml}...')
+
+    tomlfile = args.toml
+    with open(tomlfile, 'rb') as f:
+        toml = tomllib.load(f)
+
+    meta = {k: v for k, v in toml['meta'].items()}
+    init_checks(toml, tomlfile)
+
+    for k in meta.keys():
+        meta[k] = toml[k]
+
+    changes = str(meta).replace('\'', '"').replace(":", " =").replace("{", "").replace("}", "")
+
+    database = args.database
+    db = sqlite3.connect(database)
+
+    db.execute(f'UPDATE Meta SET {changes} WHERE "model_name" = "{toml["model_name"]}"')
+
+    db.commit()
+    db.close()
+    print('Done.')
 
 
-def update(args):
-    print(f'update the model specified by and using the information contained in TOML file {args.toml}')
-    # TODO think through this better
-
-
-def delete(args):
-    ans = input(f'This operation will delete all reference draws for {args.model},\nand all corresponding information from minipdb.sqlite.\n\nThis operation can not be undone.\n\nAre you sure you want to proceed?\n\nType Yes to continue: ')
+def delete(args: dict):
+    ans = input(f'This operation will delete all reference draws for {args.model_name},\nand all corresponding information from minipdb.sqlite.\n\nThis operation can not be undone.\n\nAre you sure you want to proceed?\n\nType Yes to continue: ')
 
     if ans != 'Yes':
         sys.exit('Canceled delete.')
 
     database = args.database
     db = sqlite3.connect(database)
-    print(f'deleting {args.model}...')
+    print(f'deleting {args.model_name}...')
 
-    dfprogram = pd.read_sql_query('SELECT * FROM Program', db)
-    exists_in_program = meta['model_name'] in dfprogram['model_name']
+    exists_in_program = False
+    try:
+        dfprogram = pd.read_sql_query('SELECT * FROM Program', db)
+        exists_in_program = args.model_name in dfprogram['model_name'].values
+    except:
+        pass
     if exists_in_program:
-        db.execute(f'DELETE FROM Program WHERE "model_name" = "{args.model}"')
+        print(f'deleing {args.model_name} from table Program')
+        db.execute(f'DELETE FROM Program WHERE "model_name" = "{args.model_name}"')
 
-    dfmeta = pd.read_sql_query('SELECT * FROM Meta', db)
-    exists_in_meta = meta['model_name'] in dfprogram['model_name']
+    exists_in_meta = False
+    try:
+        dfmeta = pd.read_sql_query('SELECT * FROM Meta', db)
+        exists_in_meta = args.model_name in dfprogram['model_name'].values
+    except:
+        pass
     if exists_in_meta:
-        db.execute(f'DELETE FROM Meta WHERE "model_name" = "{args.model}"')
+        db.execute(f'DELETE FROM Meta WHERE "model_name" = "{args.model_name}"')
 
-    dfdiagnostics = pd.read_sql_query(f'SELECT * FROM {args.model}_diagnostics', db)
-    exists_in_diagnostics = meta['model_name'] in dfdiagnostics['model_name']
+    exists_in_diagnostics = False
+    try:
+        dfdiagnostics = pd.read_sql_query(f'SELECT * FROM {args.model_name}_diagnostics', db)
+        exists_in_diagnostics = args.model_name in dfdiagnostics['model_name'].values
+    except:
+        pass
     if exists_in_diagnostics:
-        db.execute(f'DELETE FROM {args.model}_diagnostics WHERE "model_name" = "{args.model}"')
+        db.execute(f'DROP {args.model_name}_diagnostics')
 
-    dfmetric = pd.read_sql_query(f'SELECT * FROM {args.model}_metric', db)
-    exists_in_metric = meta['model_name'] in dfmetric['model_name']
+    exists_in_metric = False
+    try:
+        dfmetric = pd.read_sql_query(f'SELECT * FROM {args.model_name}_metric', db)
+        exists_in_metric = args.model_name in dfmetric['model_name'].values
+    except:
+        pass
     if exists_in_metric:
-        db.execute(f'DELETE FROM {args.model}_metric WHERE "model_name" = "{args.model}"')
+        db.execute(f'DROP {args.model}_metric')
 
-    table_exists = False
-    cursor = db.cursor()
-    tables = cursor.execute('SELECT name FROM sqlite_master WHERE type="table";')
-    for table in tables:
-        if args.model == table:
-            table_exists = True
-            break
-
-    if table_exists:
+    if table_exists(db):
         db.execute(f'DROP "{args.model}"')
 
+    db.commit()
     db.close()
     print('Done.')
 
 
 parser = argparse.ArgumentParser(
     prog='minipdb',
-    description='Command line tool for managing entries of minipdb.sqlite',
-    epilog='what is an epilog for?')
+    description='Command line tool for managing entries of a minipdb database.')
 
 parser.add_argument('-d',
                     '--database',
                     default = 'minipdb.sqlite',
                     help = 'Specify database to use; defaults to minipdb.sqlite')
 
+parser.add_argument('-y',
+                    '--yes',
+                    default = False,
+                    action = 'store_true',
+                    help = 'Automatic yes to prompts. Assume "Yes" as answer to all prompts and run non-interactively. Defaults to No.')
+
+parser.add_argument('-c',
+                    '--cpus',
+                    type = int,
+                    default = cpu_count() - 1,
+                    help = 'Number of CPU processes to use while running models.  Defaults to multiprocessing.cpu_count() - 1')
+
+parser.add_argument('-a',
+                    '--all_models',
+                    default = False,
+                    action = 'store_true',
+                    help = 'Run all models in database.')
+
 subparsers = parser.add_subparsers(required = True)
 
 
 cmd_init = subparsers.add_parser('init',
-                                help = 'initialize a Stan program (source code and data only) into minipdb.sqlite')
+                                help = 'initialize a Stan program (source code and data only) into database')
 
 cmd_init.add_argument('toml',
                       help = 'path to a TOML file, e.g. SomeModel.toml, which details information about the Stan program to be initialized')
@@ -296,12 +477,6 @@ cmd_run.add_argument('--overwrite',
 cmd_run.set_defaults(func = run)
 
 
-cmd_runall = subparsers.add_parser('run_all',
-                                help = 'run specified model and store reference draws')
-
-cmd_runall.set_defaults(func = runall)
-
-
 cmd_update = subparsers.add_parser('update',
                                  help = 'update model pointed to by and using the information contained in TOML file')
 
@@ -311,12 +486,20 @@ cmd_update.add_argument('toml',
 cmd_update.set_defaults(func = update)
 
 cmd_delete = subparsers.add_parser('delete',
-                                   help = 'delete the table of reference draws and the corresponding entries in all tables; this operation can not be undone')
+                                   help = 'delete the table of reference draws and the corresponding entries in all tables')
 
-cmd_delete.add_argument('model',
+cmd_delete.add_argument('model_name',
                         help = 'unique model_name for an already added Stan program')
 
 cmd_delete.set_defaults(func = delete)
+
+cmd_reinit = subparsers.add_parser('re-init',
+                                   help = 're-initialize the sampling algorithm information in Meta')
+
+def reinit(args):
+    print('do stuff')
+
+cmd_reinit.set_defaults(func = reinit)
 
 if __name__ == '__main__':
     args = parser.parse_args()
