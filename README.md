@@ -1,20 +1,20 @@
-# minipdb
+# MiniPDB
 
-`minipdb`, AKA Mini-PosteriorDB, provides a
+MiniPDB, AKA Mini-PosteriorDB, provides a
 [SQLite](https://www.sqlite.org/index.html) database that contains reference
 draws for a collection of [Stan](https://mc-stan.org/) programs, with the goal
 of easing the comparison and evaluation of MCMC algorithms.
 
-`minipdb` attempts to mimic the usefuleness of
+MiniPDB attempts to mimic the usefuleness of
 [posteriordb](https://github.com/stan-dev/posteriordb), but uses a SQLite
-database via the R package
-[RSQLite](https://cran.r-project.org/web/packages/RSQLite/).  `minipdb`'s most
-useful component is the database `minipdb.sqlite`.
+database instead.  MiniPDB's most useful components are the database
+`minipdb.sqlite` itself and a command line interface `minipdb.py` for managing
+the entires of a MiniPDB database.
 
 The database `minipdb.sqlite` consists of the tables `Program`, `Meta`, `x`,
 `x_diagnostics`, and `x_metric`, where `x` represents a model name matching the
-values in the column `model_name` of table `Program`.  Details of the tables
-are described below.
+values in the column `model_name` of table `Program`.  Details of the tables are
+described below.
 
 ## Database Tables
 
@@ -37,35 +37,58 @@ are on the constrained scale, even though Stan samples on the unconstrained
 scale.  The user is responsible for conversion from the constrained scale to the
 unconstrained scale.
 
+
 Table `x_diagnostics` contains all the information output from CmdStanR's
 function
 [sampler_diagnostics()](https://mc-stan.org/cmdstanr/reference/fit-method-sampler_diagnostics.html),
 namely columns: `accept_stat__`, `stepsize__`, `treedepth__`, `n_leapfrog__`,
 `divergent__`, and `energy__`.
 
+N.B. Once [CmdStanPy issue
+676](https://github.com/stan-dev/cmdstanpy/issues/676) is in, this table will be
+merged with the reference draws table.
+
 Table `x_metric` contains the diagonal elements of (the diagonal) mass matrix as
 output from CmdStanR's function
 [inv_metric()](https://mc-stan.org/cmdstanr/reference/fit-method-inv_metric.html).
+Rows of this table correspond to dimensions of the model and columns correspond
+to chains.
 
 ## Dependencies
 
-The statistical programming language [R](https://www.r-project.org/), R packages
-`posteriordb`, `dplyr`, `DBI`, `RSQLite`, `jsonlite`, `rlang`, `httr`,
-`posterior`, `withr`, and `cmdstanr`.  The package `cmdstanr` itself has
-dependencies on [CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and
-a suitable C++ toolchain.  The documentation for a [CmdStan
-Installation](https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html)
-has instructions for getting a suitable C++ toolchain setup.
+The Python packages used in the command line interface `minipdb.py` are
+argparse, pathlib, sqlite3, tomllib, sys, random, string, json, cmdstanpy,
+numpy, pandas, and multiprocessing
 
-## Looking Forward
+The package `cmdstanpy` itself has dependencies on
+[CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and a suitable C++
+toolchain.  Follow the [CmdStanPy documentation](https://mc-stan.org/cmdstanpy/)
+to get this set up.
 
-This shouldn't be a set of R script files.  It should be a Python command line
-tool with an API something like
+## Command Line Interface
 
-### add
+The file `minipdb.py` is a Python 3.11 command line interface (CLI) for managing the
+entries of a minipdb database.  The subsections below describe the main verbs of
+the minipdb CLI, but skip the various flags/options.
+
+### help
+
+Run
 
 ```
-python3 minipdb.py add stan_program.toml
+python3 minipdb.py -h
+```
+
+for help
+
+### init
+
+Initialize a Stan program (source code and data only) into the database.
+Initialization is separated from running/storing reference draws in case the
+user wants to run CmdStanPy on their preferred machine.
+
+```
+python3 minipdb.py init stan_program.toml
 ```
 
 where some `stan_program.toml` file looks like
@@ -77,21 +100,23 @@ stan_file = "path/to/model.stan"
 json_data = "path/to/data.json"
 
 [meta]
-iter_warmup = Int # defaults to 10000
-iter_sampling = Int # defaults iter_warmup
-chains = Int # defaults to 10
-parallel_chains = Int # defaults to chains
-thin = Int # defaults to 10
-seed = Int # defaults to a random positive integer
-adapt_delta = Float # defaults 0.8, must be in [0, 1]
-max_treedepth = Int # defaults to 10
-sig_figs = Int # defaults to 16
+iter_sampling = int # defaults 10_000
+iter_warmup = int # defaults to iter_sampling
+chains = int # defaults to 10
+parallel_chains = int # defaults to chains
+thin = int # defaults to 1
+seed = int # defaults to a random positive integer
+adapt_delta = float # defaults 0.8, must be in [0, 1]
+max_treedepth = int # defaults to 10
+sig_figs = int # defaults to 16
 ```
 
 ### run
 
+Run specified
+
 ```
-python3 minipdb.py run "SomeModel" [--overwrite]
+python3 minipdb.py run SomeModel
 ```
 
 where `SomeModel` corresponds to the model name (`model_name`) of a unique Stan program.  Run
@@ -102,21 +127,24 @@ resulting reference draws in a table named `SomeModel`.
 If the flag `--overwrite` is present, then `run` overwrites the reference draws
 in the database.
 
-### edit
+TODO Note that `parallel_chains` will default to the minimum of whatever is in
+Meta/`SomeModel.toml` and `multiprocessing.cpu_count() - 1`.
 
-Edit the meta data and/or model name of a uniquely identified Stan program.
+### update
+
+Update the Stan program pointed to by and using the information contained in the
+specified TOML file,
 
 ```
-python3 minipdb.py edit stan_program.toml
+python3 minipdb.py update stan_program.toml
 ```
 
 where `stan_program.toml` looks like the example above, except the defaults are
-now set by the corresponding values in Meta for the specified model name.
+now set by the corresponding values in Meta for the specified model name.  Any
+values not specified in `stan_program.toml` will not be updated.
 
-TODO what to do when a model's meta data is `edit`ed, but not yet re-run?
-
-If `edit`ing the meta data of a model, maybe the user should consider if two
-models with similar names and different meta data is more appropriate.
+Like `init`, this command does not `run` a model. TODO so maybe it needs a
+better name.
 
 ### delete
 
@@ -124,5 +152,5 @@ Delete the table containing reference draws identified by a unique `model_name`,
 corresponding rows in `Program` and `Meta`, with
 
 ```
-python3 minipdb.py delete "SomeModel"
+python3 minipdb.py delete SomeModel
 ```

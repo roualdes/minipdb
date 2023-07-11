@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+
+import argparse
+import minipdb
+
+from multiprocessing import cpu_count
+
+parser = argparse.ArgumentParser(
+    prog='minipdb',
+    description='Command line tool for managing entries of a minipdb database.')
+
+parser.add_argument('-d',
+                    '--database',
+                    default = 'minipdb.sqlite',
+                    help = 'Specify database to use; defaults to minipdb.sqlite')
+
+parser.add_argument('-y',
+                    '--yes',
+                    default = False,
+                    action = 'store_true',
+                    help = 'Automatic yes to prompts. Assume "Yes" as answer to all prompts and run non-interactively. Defaults to No.')
+
+parser.add_argument('-c',
+                    '--cpus',
+                    type = int,
+                    default = cpu_count() - 1,
+                    help = 'Number of CPU processes to use while running models.  Defaults to multiprocessing.cpu_count() - 1')
+
+parser.add_argument('-a',
+                    '--all_models',
+                    default = False,
+                    action = 'store_true',
+                    help = 'Run all models in database.')
+
+parser.add_argument('--overwrite',
+                    help='overwrite reference draws',
+                    action='store_true')
+
+subparsers = parser.add_subparsers(required = True)
+
+
+cmd_init = subparsers.add_parser('init',
+                                help = 'initialize a Stan program (source code and data only) into database')
+
+cmd_init.add_argument('toml',
+                      help = 'path to a TOML file, e.g. SomeModel.toml, which details information about the Stan program to be initialized')
+
+cmd_init.set_defaults(func = minipdb.init)
+
+
+cmd_run = subparsers.add_parser('run',
+                                help = 'run specified model and store reference draws')
+
+cmd_run.add_argument('model_name',
+                     help = 'unique model_name for an already added Stan program')
+
+cmd_run.set_defaults(func = minipdb.run)
+
+
+cmd_run_all = subparsers.add_parser('run_all',
+                                    help = 'run all inited models in table Program. If overwrite, re-run and overwrite models that have already been run')
+
+cmd_run_all.set_defaults(func = minipdb.run_all)
+
+
+cmd_update = subparsers.add_parser('update',
+                                 help = 'update model pointed to by and using the information contained in TOML file')
+
+cmd_update.add_argument('toml',
+                        help = 'update model using the information contained in the specified TOML file')
+
+cmd_update.set_defaults(func = minipdb.update)
+
+cmd_delete = subparsers.add_parser('delete',
+                                   help = 'delete the table of reference draws and the corresponding entries in all tables')
+
+cmd_delete.add_argument('model_name',
+                        help = 'unique model_name for an already added Stan program')
+
+cmd_delete.set_defaults(func = minipdb.delete)
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    args.func(args)

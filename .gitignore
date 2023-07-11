@@ -1,6 +1,25 @@
+*.pyc
+__pycache__
+*.swp
+build
+*.egg-info
+.vscode
+.ipynb_checkpoints
+travis.yml
+.coverage
+.pytest_cache
+dist
+htmlcov
+docsrc/_build
+.idea
+.DS_Store
+.mypy_cache
+*.dll
+
 # History files
 .Rhistory
 .Rapp.history
+.juliahistory
 
 # Session Data files
 .RData
@@ -50,3 +69,6 @@ rsconnect/
 
 packages/
 models/
+test/fake
+test/fake.hpp
+play.py
