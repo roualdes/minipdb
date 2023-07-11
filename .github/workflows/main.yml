@@ -53,9 +53,9 @@ jobs:
 
       - name: Install dependencies (python)
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip pytest numpy pandas cmdstanpy
 
-      - name: Install wheel
+      - name: Install minipdb
         run: pip install .
 
       - name: CmdStan installation cacheing
