@@ -1,7 +1,7 @@
 import sqlite3
 import pandas as pd
 
-db = sqlite3.connect('minipdb.sqlite')
+db = sqlite3.connect('minipdb.sqlite', detect_types=sqlite3.PARSE_DECLTYPES)
 
 model_name = 'arK-arK'
 

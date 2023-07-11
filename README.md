@@ -1,20 +1,20 @@
-# minipdb
+# MiniPDB
 
-`minipdb`, AKA Mini-PosteriorDB, provides a
+MiniPDB, AKA Mini-PosteriorDB, provides a
 [SQLite](https://www.sqlite.org/index.html) database that contains reference
 draws for a collection of [Stan](https://mc-stan.org/) programs, with the goal
 of easing the comparison and evaluation of MCMC algorithms.
 
-`minipdb` attempts to mimic the usefuleness of
+MiniPDB attempts to mimic the usefuleness of
 [posteriordb](https://github.com/stan-dev/posteriordb), but uses a SQLite
-database via the R package
-[RSQLite](https://cran.r-project.org/web/packages/RSQLite/).  `minipdb`'s most
-useful component is the database `minipdb.sqlite`.
+database instead.  MiniPDB's most useful components are the database
+`minipdb.sqlite` itself and a command line interface `minipdb.py` for managing
+the entires of a MiniPDB database.
 
 The database `minipdb.sqlite` consists of the tables `Program`, `Meta`, `x`,
 `x_diagnostics`, and `x_metric`, where `x` represents a model name matching the
-values in the column `model_name` of table `Program`.  Details of the tables
-are described below.
+values in the column `model_name` of table `Program`.  Details of the tables are
+described below.
 
 ## Database Tables
 
@@ -126,6 +126,9 @@ resulting reference draws in a table named `SomeModel`.
 
 If the flag `--overwrite` is present, then `run` overwrites the reference draws
 in the database.
+
+TODO Note that `parallel_chains` will default to the minimum of whatever is in
+Meta/`SomeModel.toml` and `multiprocessing.cpu_count() - 1`.
 
 ### update
 
