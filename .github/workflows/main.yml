@@ -51,10 +51,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies (python)
-        run: |
-          python -m pip install --upgrade pip pytest numpy pandas cmdstanpy
-
       - name: Install minipdb
         run: pip install .
 
