@@ -16,6 +16,22 @@ The database minipdb.sqlite consists of the tables Program, Meta, *x*,
 values in the column model_name of table Program.  Details of the tables are
 described below.
 
+## Example
+
+Reading from a SQLite database in fairly simple in Julia, Python, and R, thanks
+to their well developed data-centric ecosystems.  See the files example.jl,
+example.py, and example.R.  Below is a simplified version of the contents of
+example.py.
+
+```python
+import sqlite3
+import pandas as pd
+
+db = sqlite3.connect("minipdb.sqlite")
+df = pd.read_sql_query('SELECT * FROM "arK-arK"', db)
+dfp.mean()
+```
+
 ## Database Tables
 
 Table Program contains columns: model_name, code, data, and last_run.

@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.11"]
+        python-version: ["3.9"]
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -52,7 +52,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install minipdb
-        run: pip install .
+        run: |
+          python -m pip install --upgrade pip pytest
+          pip install .
 
       - name: CmdStan installation cacheing
         uses: actions/cache@v3
