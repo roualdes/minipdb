@@ -1,4 +1,4 @@
-name: CmdStanPy
+name: MiniPDB
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
     outputs:
       version: ${{ steps.check-cmdstan.outputs.version }}
 
-  cmdstanpy:
+  minipdb:
     needs: get-cmdstan-version
     name: tests
     runs-on: ${{ matrix.os }}

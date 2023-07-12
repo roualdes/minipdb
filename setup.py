@@ -8,7 +8,9 @@ with open(VERSIONFILE, "rt") as f:
     version = literal_eval(f.readline().split("= ")[1])
 
 # remainder of setup in setup.cfg
-setup(version=version,
-      package_dir={'minipdb': 'src'},
-      pacakges = ['minipdb'],
-      scripts=['bin/minipdb'])
+setup(
+    version=version,
+    package_dir={"minipdb": "src"},
+    pacakges=["minipdb"],
+    scripts=["bin/minipdb"],
+)
