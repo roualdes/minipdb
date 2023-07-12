@@ -72,3 +72,4 @@ models/
 test/fake
 test/fake.hpp
 play.py
+notes.org

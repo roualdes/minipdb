@@ -94,7 +94,7 @@ The subsections below describe the main verbs of the CLI.
 Run
 
 ```
-python3 minipdb.py -h
+minipdb -h
 ```
 
 to print the help menu.
@@ -115,20 +115,20 @@ minipdb init stan_program.yml
 where some `stan_program.yml` file looks similar to the follow YAML file
 
 ```
-model_name = "Bespoke-model" # starts with [A-Z], no spaces, the only special characters allowed are _-
-stan_file = "path/to/model.stan"
-json_data = "path/to/data.json"
+model_name: Bespoke-model # starts with [A-Z], no spaces, the only special characters allowed are _-
+stan_file: path/to/model.stan
+json_data: path/to/data.json
 
-[meta]
-iter_sampling = int     # defaults 10_000, must be in 2_000:1_000_000
-iter_warmup = int       # defaults to iter_sampling
-chains = int            # defaults to 10, must be >= 1
-parallel_chains = int   # defaults to chains, must be in 1:chains
-thin = int              # defaults to 1, must be in 1:iter_sampling
-seed = int              # defaults to a random positive integer, must be in 1:2^32-1
-adapt_delta = float     # defaults 0.8, must be in [0, 1]
-max_treedepth = int     # defaults to 10, must be in 1:20
-sig_figs = int          # defaults to 16, must be in 1:18
+meta:
+  iter_sampling: int     # defaults 10_000, must be in 2_000:1_000_000
+  iter_warmup: int       # defaults to iter_sampling
+  chains: int            # defaults to 10, must be >= 1
+  parallel_chains: int   # defaults to chains, must be in 1:chains
+  thin: int              # defaults to 1, must be in 1:iter_sampling
+  seed: int              # defaults to a random positive integer, must be in 1:2^32-1
+  adapt_delta: float     # defaults 0.8, must be in [0, 1]
+  max_treedepth: int     # defaults to 10, must be in 1:20
+  sig_figs: int          # defaults to 16, must be in 1:18
 ```
 
 such that `int` and `float` are stand-ins for integer and float values.
