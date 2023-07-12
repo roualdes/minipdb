@@ -18,7 +18,7 @@ described below.
 
 ## Example
 
-Reading from a SQLite database in fairly simple in Julia, Python, and R, thanks
+Reading from a SQLite database is fairly simple in Julia, Python, and R, thanks
 to their well developed data-centric ecosystems.  See the files example.jl,
 example.py, and example.R.  Below is a simplified version of the contents of
 example.py.
@@ -29,7 +29,7 @@ import pandas as pd
 
 db = sqlite3.connect("minipdb.sqlite")
 df = pd.read_sql_query('SELECT * FROM "arK-arK"', db)
-dfp.mean()
+dfp.mean() # mean of all reference draws for model arK-arK
 ```
 
 ## Database Tables
@@ -66,13 +66,15 @@ to chains.
 
 ## Dependencies
 
-MiniPDB requires Python 3.9.  The Python packages used in the command line
-interface minipdb which are not part of the Python 3.9 standard library are
-[cmdstanpy](https://mc-stan.org/cmdstanpy/), [numpy](https://numpy.org/),
-[pandas](https://pandas.pydata.org/), and
-[pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation).
+The database minipdb.sqlite requires SQLite3 or interface to it, via say Julia,
+Python, or R.
 
-The package cmdstanpy itself has dependencies on
+The command line interface minipdb requires Python 3.9.  The Python packages
+used in the command line interface minipdb which are not part of the Python 3.9
+standard library are [cmdstanpy](https://mc-stan.org/cmdstanpy/),
+[numpy](https://numpy.org/), [pandas](https://pandas.pydata.org/), and
+[pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation).  The package cmdstanpy
+itself has dependencies on
 [CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and a suitable C++
 toolchain.  Follow the [CmdStanPy documentation](https://mc-stan.org/cmdstanpy/)
 to get this set up.
