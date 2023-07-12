@@ -9,10 +9,10 @@ import pandas as pd
 
 def test_init():
     cwd = pathlib.Path().resolve() / "test"
-    args = {"toml": cwd / "fake01.toml", "database": cwd / "test.sqlite"}
+    args = {"yaml": cwd / "fake01.yml", "database": cwd / "test.sqlite"}
     minipdb.init(args)
 
-    args["toml"] = cwd / "fake02.toml"
+    args["yaml"] = cwd / "fake02.yml"
     minipdb.init(args)
 
     database = args["database"]

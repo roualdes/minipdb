@@ -39,8 +39,8 @@ subparsers = parser.add_subparsers(required = True)
 
 cmd_init = subparsers.add_parser('init',
                                 help = 'initialize a Stan program (source code and data only) into database')
-cmd_init.add_argument('toml',
-                      help = 'path to a TOML file, e.g. SomeModel.toml, which details information about the Stan program to be initialized')
+cmd_init.add_argument('yaml',
+                      help = 'path to a YAML file, e.g. SomeModel.yml, which details information about the Stan program to be initialized')
 cmd_init.set_defaults(func = minipdb.init)
 
 
@@ -58,15 +58,15 @@ cmd_run_all.set_defaults(func = minipdb.run_all)
 
 cmd_add = subparsers.add_parser('add',
                                 help = 'init and run specified model')
-cmd_add.add_argument('toml',
-                     help = 'path to a TOML file, e.g. SomeModel.toml')
+cmd_add.add_argument('yaml',
+                     help = 'path to a YAML file, e.g. SomeModel.yml')
 cmd_add.set_defaults(func = minipdb.add)
 
 
 cmd_update = subparsers.add_parser('update',
-                                 help = 'update model pointed to by and using the information contained in TOML file')
-cmd_update.add_argument('toml',
-                        help = 'update model using the information contained in the specified TOML file')
+                                 help = 'update model pointed to by and using the information contained in YAML file')
+cmd_update.add_argument('yaml',
+                        help = 'update model using the information contained in the specified YAML file')
 cmd_update.set_defaults(func = minipdb.update)
 
 

@@ -50,9 +50,11 @@ to chains.
 
 ## Dependencies
 
-MiniPDB requires Python 3.11.  The Python packages used in the command line
-interface minipdb which are not part of the Python 3.11 standard library are
-cmdstanpy, numpy, and pandas.
+MiniPDB requires Python 3.9.  The Python packages used in the command line
+interface minipdb which are not part of the Python 3.9 standard library are
+[cmdstanpy](https://mc-stan.org/cmdstanpy/), [numpy](https://numpy.org/),
+[pandas](https://pandas.pydata.org/), and
+[pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation).
 
 The package cmdstanpy itself has dependencies on
 [CmdStan](https://mc-stan.org/docs/cmdstan-guide/index.html) and a suitable C++
@@ -61,7 +63,7 @@ to get this set up.
 
 ## Command Line Interface
 
-minipdb is a Python 3.11 command line interface (CLI) for managing the
+minipdb is a Python 3.9 command line interface (CLI) for managing the
 entries of a MiniPDB database.  To install minipdb, run the following
 
 ```
@@ -91,10 +93,10 @@ To initialize a Stan program into the database use a command similar to the
 following.
 
 ```
-minipdb init stan_program.toml
+minipdb init stan_program.yml
 ```
 
-where some `stan_program.toml` file looks similar to the follow TOML file
+where some `stan_program.yml` file looks similar to the follow YAML file
 
 ```
 model_name = "Bespoke-model" # starts with [A-Z], no spaces, the only special characters allowed are _-
@@ -147,7 +149,7 @@ without stopping to prompt the user to double check their request.
 Combine `init` and `run` into one command with
 
 ```
-minipdb add stan_program.toml
+minipdb add stan_program.yml
 ```
 
 This only works for `run`ning one Stan program.
@@ -177,15 +179,15 @@ without stopping to prompt the user to double check their request.
 ### update
 
 Update the Stan program pointed to by and using the information contained in the
-specified TOML file,
+specified YAML file,
 
 ```
-minipdb update stan_program.toml
+minipdb update stan_program.yml
 ```
 
-where `stan_program.toml` looks like the example above, except the defaults are
+where `stan_program.yml` looks like the example above, except the defaults are
 now set by the corresponding values in Meta for the specified model name.  Any
-values not specified in `stan_program.toml` will not be updated.
+values not specified in `stan_program.yml` will not be updated.
 
 Like `init`, this command does not `run` a model.  The user is responsible for
 calling `run` following an update.

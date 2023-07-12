@@ -1,5 +1,4 @@
 import sqlite3
-import tomllib
 import sys
 import pathlib
 import datetime
@@ -7,7 +6,7 @@ import datetime
 import pandas as pd
 
 from .checks import init_checks
-from .tools import table_exists, create_db
+from .tools import table_exists, create_db, read_config
 
 """
 Initialize a Stan program into the database, without storing reference draws.
@@ -16,7 +15,7 @@ A row is added to both of the database tables Program and Meta.  The row
 inserted into Program will contain the model name, the .stan file code, and the
 JSON data.  The row inserted into Meta will contain all the necessary sampling
 parameters in order to create the reference draws.  The values within each row
-is obtained from the TOML file specified at the command line.
+is obtained from the YAML file specified at the command line.
 
 Following initialization of a Stan program, the command :command:`run` is
 neccessary to store reference draws.  Separating :command:`init` and
@@ -29,16 +28,15 @@ in one step.
 
 
 def init(args):
-    tomlfile = args["toml"]
-    with open(tomlfile, "rb") as f:
-        toml = tomllib.load(f)
+    configfile = args["yaml"]
+    config = read_config(configfile)
 
-    init_checks(toml, tomlfile)
+    init_checks(config, configfile)
 
-    model_name = toml["model_name"]
+    model_name = config["model_name"]
     print(f"Initializing {model_name}...")
 
-    parent_dir = pathlib.Path(tomlfile).parent
+    parent_dir = pathlib.Path(configfile).parent
     database = parent_dir / args["database"]
     db = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)
 
@@ -88,18 +86,18 @@ def init(args):
             f"A Stan program with model name {model_name} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name."
         )
 
-    f = parent_dir / toml["stan_file"]
+    f = parent_dir / config["stan_file"]
     with open(f, "r") as f:
-        toml["code"] = "".join(f.readlines())
+        config["code"] = "".join(f.readlines())
 
-    f = parent_dir / toml["json_data"]
+    f = parent_dir / config["json_data"]
     with open(f, "r") as f:
-        toml["data"] = "".join(f.readlines())
+        config["data"] = "".join(f.readlines())
 
     try:
-        toml["last_run"] = datetime.datetime.min
+        config["last_run"] = datetime.datetime.min
         db.execute(
-            "INSERT INTO Program VALUES(:model_name, :code, :data, :last_run)", toml
+            "INSERT INTO Program VALUES(:model_name, :code, :data, :last_run)", config
         )
         db.commit()
     except sqlite3.IntegrityError as e:
@@ -108,7 +106,7 @@ def init(args):
     try:
         db.execute(
             "INSERT INTO Meta VALUES(:model_name, :iter_warmup, :iter_sampling, :chains, :parallel_chains, :thin, :seed, :adapt_delta, :max_treedepth, :sig_figs)",
-            toml,
+            config,
         )
         db.commit()
     except sqlite3.IntegrityError as e:

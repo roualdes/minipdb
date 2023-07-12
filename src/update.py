@@ -1,21 +1,19 @@
 import sqlite3
-import tomllib
 
 from .checks import init_checks
+from .tools import read_config
 
 
 def update(args: dict):
-    tomlfile = args["toml"]
-    print(f"Updating meta information using information in {tomlfile}...")
+    configfile = args["yaml"]
+    config = read_config(configfile)
+    print(f"Updating meta information using information in {configfile}...")
 
-    with open(tomlfile, "rb") as f:
-        toml = tomllib.load(f)
-
-    meta = {k: v for k, v in toml["meta"].items()}
-    init_checks(toml, tomlfile)
+    meta = {k: v for k, v in config["meta"].items()}
+    init_checks(config, configfile)
 
     for k in meta.keys():
-        meta[k] = toml[k]
+        meta[k] = config[k]
 
     changes = (
         str(meta).replace("'", '"').replace(":", " =").replace("{", "").replace("}", "")
@@ -24,7 +22,7 @@ def update(args: dict):
     database = args["database"]
     db = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)
 
-    model_name = toml["model_name"]
+    model_name = config["model_name"]
     db.execute(f'UPDATE Meta SET {changes} WHERE "model_name" = "{model_name}"')
     db.commit()
 

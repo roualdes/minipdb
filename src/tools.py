@@ -1,4 +1,5 @@
 import sqlite3
+import yaml
 
 """
 Check if table args['model_name'] exists in database
@@ -30,5 +31,10 @@ def create_db(database: str):
         'CREATE TABLE Meta ("model_name" TEXT PRIMARY KEY, "iter_sampling" INTEGER NOT NULL, "iter_warmup" INTEGER NOT NULL, chains INTEGER NOT NULL, "parallel_chains" INTEGER NOT NULL, thin INTEGER NOT NULL, seed INTEGER NOT NULL, "adapt_delta" REAL NOT NULL, "max_treedepth" INTEGER NOT NULL, "sig_figs" INTEGER NOT NULL)'
     )
     db.commit()
-
     db.close()
+
+
+def read_config(configfile: str):
+    with open(configfile, "rb") as f:
+        yml = yaml.load(f, Loader=yaml.Loader)
+    return yml

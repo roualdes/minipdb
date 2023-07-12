@@ -11,7 +11,7 @@ cwd = pathlib.Path().resolve() / "test"
 
 def test_run():
     args = {
-        "toml": cwd / "fake01.toml",
+        "yaml": cwd / "fake01.yml",
         "database": cwd / "test.sqlite",
         "model_name": "Fake01",
         "all_models": False,
@@ -40,7 +40,7 @@ def test_run():
 
 def test_update():
     args = {
-        "toml": cwd / "fake03.toml",
+        "yaml": cwd / "fake03.yml",
         "database": cwd / "test.sqlite",
         "model_name": "Fake01",
         "all_models": False,
