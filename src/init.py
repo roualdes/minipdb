@@ -28,22 +28,22 @@ in one step.
 
 
 def init(args):
-    configfile = args["yaml"]
+    configfile = args['yaml']
     config = read_config(configfile)
 
     init_checks(config, configfile)
 
-    model_name = config["model_name"]
-    print(f"Initializing {model_name}...")
+    model_name = config['model_name']
+    print(f'Initializing {model_name}...')
 
     parent_dir = pathlib.Path(configfile).parent
-    database = parent_dir / args["database"]
+    database = parent_dir / args['database']
     db = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)
 
     exists_in_program = False
     try:
-        dfprogram = pd.read_sql_query("SELECT * FROM Program", db)
-        exists_in_program = model_name in dfprogram["model_name"].values
+        dfprogram = pd.read_sql_query('SELECT * FROM Program', db)
+        exists_in_program = model_name in dfprogram['model_name'].values
     except pandas.errors.DatabaseError:
         db.close()
         create_db(database)
@@ -51,22 +51,22 @@ def init(args):
 
     exists_in_meta = False
     try:
-        dfmeta = pd.read_sql_query("SELECT * FROM Meta", db)
-        exists_in_meta = model_name in dfmeta["model_name"].values
+        dfmeta = pd.read_sql_query('SELECT * FROM Meta', db)
+        exists_in_meta = model_name in dfmeta['model_name'].values
     except:
         pass
 
     exists_in_diagnostics = False
     try:
-        dfdiagnostics = pd.read_sql_query(f"SELECT * FROM {model_name}_diagnostics", db)
-        exists_in_diagnostics = model_name in dfdiagnostics["model_name"].values
+        dfdiagnostics = pd.read_sql_query(f'SELECT * FROM {model_name}_diagnostics', db)
+        exists_in_diagnostics = model_name in dfdiagnostics['model_name'].values
     except:
         pass
 
     exists_in_metric = False
     try:
-        dfmetric = pd.read_sql_query(f"SELECT * FROM {model_name}_metric", db)
-        exists_in_metric = model_name in dfmetric["model_name"].values
+        dfmetric = pd.read_sql_query(f'SELECT * FROM {model_name}_metric', db)
+        exists_in_metric = model_name in dfmetric['model_name'].values
     except:
         pass
 
@@ -83,21 +83,21 @@ def init(args):
 
     if all(exists):
         sys.exit(
-            f"A Stan program with model name {model_name} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name."
+            f'A Stan program with model name {model_name} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name.'
         )
 
-    f = parent_dir / config["stan_file"]
-    with open(f, "r") as f:
-        config["code"] = "".join(f.readlines())
+    f = parent_dir / config['stan_file']
+    with open(f, 'r') as f:
+        config['code'] = ''.join(f.readlines())
 
-    f = parent_dir / config["json_data"]
-    with open(f, "r") as f:
-        config["data"] = "".join(f.readlines())
+    f = parent_dir / config['json_data']
+    with open(f, 'r') as f:
+        config['data'] = ''.join(f.readlines())
 
     try:
-        config["last_run"] = datetime.datetime.min
+        config['last_run'] = datetime.datetime.min
         db.execute(
-            "INSERT INTO Program VALUES(:model_name, :code, :data, :last_run)", config
+            'INSERT INTO Program VALUES(:model_name, :code, :data, :last_run)', config
         )
         db.commit()
     except sqlite3.IntegrityError as e:
@@ -105,7 +105,7 @@ def init(args):
 
     try:
         db.execute(
-            "INSERT INTO Meta VALUES(:model_name, :iter_warmup, :iter_sampling, :chains, :parallel_chains, :thin, :seed, :adapt_delta, :max_treedepth, :sig_figs)",
+            'INSERT INTO Meta VALUES(:model_name, :iter_warmup, :iter_sampling, :chains, :parallel_chains, :thin, :seed, :adapt_delta, :max_treedepth, :sig_figs)',
             config,
         )
         db.commit()
@@ -113,4 +113,4 @@ def init(args):
         print(e)
 
     db.close()
-    print("Done.")
+    print('Done.')

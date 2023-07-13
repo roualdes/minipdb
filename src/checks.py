@@ -2,7 +2,7 @@ import pathlib
 import sys
 import pathlib
 import string
-
+import random
 
 def error_message(var, config, msg):
     return f"Variable {var} in {config} must " + msg

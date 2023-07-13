@@ -78,4 +78,4 @@ cmd_delete.set_defaults(func = minipdb.delete)
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    args.func(args)
+    args.func(vars(args))
