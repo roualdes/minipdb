@@ -11,9 +11,10 @@ parser = argparse.ArgumentParser(
     description='Command line tool for managing entries of a minipdb database.')
 
 
+# TODO directory below needn't be a thing, just specify full path here
 parser.add_argument('-d',
                     '--database',
-                    default = 'minipdb.sqlite',
+                    default = pathlib.Path().home() / '.minipdb'/ 'minipdb.sqlite',
                     help = 'Specify database to use; defaults to minipdb.sqlite')
 parser.add_argument('-y',
                     '--yes',
