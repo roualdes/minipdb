@@ -7,13 +7,13 @@ import sqlite3
 import pandas as pd
 
 
-def test_init():
+def test_insert():
     cwd = pathlib.Path().resolve() / "test"
     args = {"yaml": cwd / "fake01.yml", "database": cwd / "test.sqlite"}
-    minipdb.init(args)
+    minipdb.insert(args)
 
     args["yaml"] = cwd / "fake02.yml"
-    minipdb.init(args)
+    minipdb.insert(args)
 
     database = args["database"]
     db = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)

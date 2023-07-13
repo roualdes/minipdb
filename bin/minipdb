@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import pathlib
 import minipdb
 
 from multiprocessing import cpu_count
@@ -36,12 +37,22 @@ parser.add_argument('--overwrite',
 
 subparsers = parser.add_subparsers(required = True)
 
-
 cmd_init = subparsers.add_parser('init',
-                                help = 'initialize a Stan program (source code and data only) into database')
-cmd_init.add_argument('yaml',
-                      help = 'path to a YAML file, e.g. SomeModel.yml, which details information about the Stan program to be initialized')
+                                 help = 'initialize a MiniPDB database')
+cmd_init.add_argument('--download',
+                      help = 'download minipdb.sqlite',
+                      action = 'store_true')
+cmd_init.add_argument('--directory',
+                      help = 'specify the directory to store database into',
+                      default = pathlib.Path().home() / '.minipdb')
 cmd_init.set_defaults(func = minipdb.init)
+
+
+cmd_insert = subparsers.add_parser('insert',
+                                help = 'insert a Stan program (source code and data only) into database')
+cmd_insert.add_argument('yaml',
+                      help = 'path to a YAML file, e.g. SomeModel.yml, which details information about the Stan program to be inserted')
+cmd_insert.set_defaults(func = minipdb.insert)
 
 
 cmd_run = subparsers.add_parser('run',

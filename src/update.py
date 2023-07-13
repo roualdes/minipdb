@@ -1,6 +1,6 @@
 import sqlite3
 
-from .checks import init_checks
+from .checks import insert_checks
 from .tools import read_config
 
 
@@ -10,7 +10,7 @@ def update(args: dict):
     print(f"Updating meta information using information in {configfile}...")
 
     meta = {k: v for k, v in config["meta"].items()}
-    init_checks(config, configfile)
+    insert_checks(config, configfile)
 
     for k in meta.keys():
         meta[k] = config[k]

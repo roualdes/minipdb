@@ -9,7 +9,7 @@ import minipdb
 def pytest_configure(config):
     cwd = pathlib.Path().resolve() / "test"
     database = cwd / "test.sqlite"
-    minipdb.tools.create_db(database)
+    minipdb.tools.initialize_db(database)
 
 
 def pytest_unconfigure(config):
