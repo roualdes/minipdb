@@ -43,9 +43,6 @@ cmd_init = subparsers.add_parser('init',
 cmd_init.add_argument('--download',
                       help = 'download minipdb.sqlite',
                       action = 'store_true')
-cmd_init.add_argument('--directory',
-                      help = 'specify the directory to store database into',
-                      default = pathlib.Path().home() / '.minipdb')
 cmd_init.set_defaults(func = minipdb.init)
 
 

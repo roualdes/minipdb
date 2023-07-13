@@ -134,6 +134,11 @@ to print the help menu.
 Initialize a MiniPDB managed database by either downloading minipdb.sqlite or
 initializing a database with the tables that MiniPDB uses.
 
+
+Use the flag `--database` to tell minipdb the full file path to the desired
+SQLite database.  The default path is `~/.minipdb/minipdb.sqlite`, which will be
+created if it does not already exist.
+
 #### download minipdb.sqlite
 
 To download minipdb.sqlite into the file `~/.minipdb/minipdb.sqlite` run the
@@ -147,10 +152,8 @@ Without the flag `--download`, the command `init` will create an empty SQLite
 database with the tables specified above ready to be populated (see `insert`
 below).
 
-Use the flag `--directory` to tell minipdb where to put the SQLite database.
-The default directory is `~/.minipdb`, which will be created if it does not
-already exist.
-
+Use the flag `--database` to tell minipdb the full file path to the desired
+SQLite database.
 
 ### insert
 

@@ -34,8 +34,7 @@ def insert(args):
     model_name = config["model_name"]
     print(f"Initializing {model_name}...")
 
-    parent_dir = pathlib.Path(configfile).parent
-    database = parent_dir / args["database"]
+    database = pathlib.Path(args["database"])
     db = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)
 
     exists_in_program = False
@@ -84,11 +83,13 @@ def insert(args):
             f"A Stan program with model name {model_name} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name."
         )
 
-    f = parent_dir / config["stan_file"]
+    folder = pathlib.Path().resolve()
+
+    f = folder / config["stan_file"]
     with open(f, "r") as f:
         config["code"] = "".join(f.readlines())
 
-    f = parent_dir / config["json_data"]
+    f = folder / config["json_data"]
     with open(f, "r") as f:
         config["data"] = "".join(f.readlines())
 
