@@ -13,7 +13,7 @@ def init(args):
     database = pathlib.Path(args["database"])
     if args["download"]:
         print("Downloading database...")
-        database.parent.mkdir(exist_ok = True)
+        database.parent.mkdir(exist_ok=True)
         if database.is_file():
             if not args["yes"]:
                 ans = input(

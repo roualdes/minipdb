@@ -26,7 +26,7 @@ install the minipdb CLI, and download minipdb.sqlite into the file
 ```
 cd /path/to/minipdb/
 pip install .
-minipdb init_db --download
+minipdb init --download
 ```
 
 A goal of this project is to keep minipdb.sqlite up to date with the Stan
@@ -134,7 +134,6 @@ to print the help menu.
 Initialize a MiniPDB managed database by either downloading minipdb.sqlite or
 initializing a database with the tables that MiniPDB uses.
 
-
 Use the flag `--database` to tell minipdb the full file path to the desired
 SQLite database.  The default path is `~/.minipdb/minipdb.sqlite`, which will be
 created if it does not already exist.
@@ -149,8 +148,8 @@ minipdb init --download
 ```
 
 Without the flag `--download`, the command `init` will create an empty SQLite
-database with the tables specified above ready to be populated (see `insert`
-below).
+database with the tables specified above ready to be populated (see `insert` and
+`add` below).
 
 Use the flag `--database` to tell minipdb the full file path to the desired
 SQLite database.
@@ -191,17 +190,17 @@ such that `int` and `float` are stand-ins for integer and float values.
 
 ### run
 
-minipdb will generate and store reference draws for `SomeModel` via CmdStanPy
-for an `insert`ed Stan prgram named `SomeModel` with code as follows.
+minipdb will generate and store reference draws for `Bespoke-model` via CmdStanPy
+for an `insert`ed Stan prgram named `Bespoke-model` with code as follows.
 
 ```
-minipdb run SomeModel
+minipdb run Bespoke-model
 ```
 
-The Stan program name `SomeModel` must match model name of a unique Stan program
+The Stan program name `Bespoke-model` must match model name of a unique Stan program
 stored in the table Program.  CmdStanPy will execute the Stan program
-`SomeModel` using the sampling algorithm parameters stored in the table Meta
-corresponding to the entry with model name `SomeModel`.
+`Bespoke-model` using the sampling algorithm parameters stored in the table Meta
+corresponding to the entry with model name `Bespoke-model`.
 
 The minipdb actions `insert` and `run` are separated to enable minipdb to be run
 locally or remotely, e.g. on a larger machine.  To better accomodate this, the
@@ -270,7 +269,7 @@ Delete the table containing reference draws identified by a unique model_name, a
 corresponding rows in Program, Meta, *x*_diagnostics, and *x*_metric, with
 
 ```
-minipdb delete SomeModel
+minipdb delete Bespoke-model
 ```
 
 If the flag `--yes` (or `-y`) is present, then `delete` will run automatically

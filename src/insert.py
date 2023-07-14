@@ -83,14 +83,12 @@ def insert(args):
             f"A Stan program with model name {model_name} already exists in minipdb.sqlite, please ensure you are adding a uniqur Stan program and if so change the nodel name."
         )
 
-    folder = pathlib.Path().resolve()
+    folder = configfile.parent
 
-    f = folder / config["stan_file"]
-    with open(f, "r") as f:
+    with open(folder / config["stan_file"], "r") as f:
         config["code"] = "".join(f.readlines())
 
-    f = folder / config["json_data"]
-    with open(f, "r") as f:
+    with open(folder / config["json_data"], "r") as f:
         config["data"] = "".join(f.readlines())
 
     try:
