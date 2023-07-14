@@ -131,8 +131,18 @@ to print the help menu.
 
 ### init
 
-Initialize a MiniPDB managed database by either downloading minipdb.sqlite or
-initializing a database with the tables that MiniPDB uses.
+There are three ways to initialize a MiniPDB managed database,
+
+1. download minipdb.sqlite, with reference draws already included,
+2. initialize a database with tables that MiniPDB uses left empty, or
+3. strategy 2. + `insert` from an already cloned [PosteriorDB
+   repository](https://github.com/stan-dev/posteriordb) all the Stan programs
+   which contain reference draws.
+
+Strategy 1. has the benefit of already including the reference draws, so there
+is no need to `run` (nor `run_all`) the contained Stan programs to create the
+reference draws.  Stategy 2. lets users create and manage their own set of Stan
+programs and reference draws.
 
 Use the flag `--database` to tell minipdb the full file path to the desired
 SQLite database.  The default path is `~/.minipdb/minipdb.sqlite`, which will be
@@ -153,6 +163,30 @@ database with the tables specified above ready to be populated (see `insert` and
 
 Use the flag `--database` to tell minipdb the full file path to the desired
 SQLite database.
+
+
+### init an empty database
+
+Follow strategy to of initializing an empty MiniPDB database with
+
+```
+minipdb init
+```
+
+
+### insert PosteriorDB programs
+
+Strategy 3., which includes everything from minipdb.sqlite except the reference
+draws, follows
+
+```
+minipdb init --posteriordb /path/to/posteriordb/posterior_database
+```
+
+Recall that PosteriorDB requires you to supply a path to the subfolder
+`posterior_database` of the repository, not the directory of the repository
+itself.
+
 
 ### insert
 
