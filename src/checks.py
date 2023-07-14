@@ -235,7 +235,7 @@ def sig_figs_check(config, configfile):
         config["sig_figs"] = config["meta"]["sig_figs"]
 
 
-def init_checks(config, configfile):
+def insert_checks(config, configfile):
     model_name_check(config, configfile)
     stan_file_check(config, configfile)
     json_data_check(config, configfile)
