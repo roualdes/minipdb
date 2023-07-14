@@ -26,7 +26,7 @@ See also the `add` which will both `insert` and `run` in one step.
 
 
 def insert(args):
-    configfile = args["yaml"]
+    configfile = pathlib.Path(args["yaml"])
     config = read_config(configfile)
 
     insert_checks(config, configfile)

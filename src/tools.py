@@ -118,7 +118,7 @@ Read a YAML config file
 """
 
 
-def read_config(configfile: str):
+def read_config(configfile):
     with open(configfile, "rb") as f:
         yml = yaml.load(f, Loader=yaml.Loader)
     return yml
