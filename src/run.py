@@ -48,15 +48,15 @@ def run_model(model_name: str, models_dir: str = "", database_path: str = ""):
     info = info[k]
     fit = model.sample(
         data=data_file,
-        iter_sampling=info["iter_sampling"],
-        iter_warmup=info["iter_warmup"],
-        chains=info["chains"],
-        parallel_chains=min(cpu_count() - 1, info["parallel_chains"]),
-        thin=info["thin"],
-        seed=info["seed"],
+        iter_sampling=int(info["iter_sampling"]),
+        iter_warmup=int(info["iter_warmup"]),
+        chains=int(info["chains"]),
+        parallel_chains=int(min(cpu_count() - 1, info["parallel_chains"])),
+        thin=int(info["thin"]),
+        seed=int(info["seed"]),
         adapt_delta=info["adapt_delta"],
-        max_treedepth=info["max_treedepth"],
-        sig_figs=info["sig_figs"],
+        max_treedepth=int(info["max_treedepth"]),
+        sig_figs=int(info["sig_figs"]),
     )
 
     t = datetime.datetime.utcnow()
