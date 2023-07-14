@@ -10,7 +10,7 @@ database = cwd / "test.sqlite"
 
 
 def pytest_configure(config):
-    minipdb.tools.initialize_db(database)
+    minipdb.tools.initialize_empty_db(database)
 
 
 def pytest_unconfigure(config):
