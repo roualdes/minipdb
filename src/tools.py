@@ -131,7 +131,7 @@ Download/stream minipdb.sqlite into path
 
 
 def download_db(path):
-    url = "https://figshare.com/ndownloader/files/41612730"
+    url = "https://figshare.com/ndownloader/files/41613318"
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         with open(path, "wb") as f:
