@@ -6,6 +6,7 @@ import requests
 import pathlib
 import random
 import sys
+import cmdstanpy
 
 """
 Check if table args['model_name'] exists in database
@@ -130,9 +131,34 @@ Download/stream minipdb.sqlite into path
 
 
 def download_db(path):
-    url = "https://roualdes.us/minipdb.sqlite"
+    url = "https://figshare.com/ndownloader/files/41612730"
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         with open(path, "wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
+
+
+"""
+Write Stan model to file.
+"""
+
+
+def write_stan_model(code: str, path: str):
+    p = pathlib.Path(path)
+    model_dir = p.parent
+    model_dir.mkdir(parents=True, exist_ok=True)
+    with open(p, "w") as f:
+        f.write(code)
+
+
+"""
+Write Stan data to file.
+"""
+
+
+def write_stan_data(data: str, path: str):
+    p = pathlib.Path(path)
+    model_dir = p.parent
+    model_dir.mkdir(parents=True, exist_ok=True)
+    cmdstanpy.write_stan_json(p, json.loads(data))

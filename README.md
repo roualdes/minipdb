@@ -308,3 +308,26 @@ minipdb delete Bespoke-model
 
 If the flag `--yes` (or `-y`) is present, then `delete` will run automatically
 without stopping to prompt the user to double check their request.
+
+
+### write
+
+Write one or many Stan programs to file.  Each Stan program, identified by its
+unique model_name and consisting of a Stan model with JSON data, is written into
+the current working directory with file paths as
+`cwd/programs/model_name/model_name.stan` and
+``cwd/programs/model_name/model_name.json`.
+
+```
+minipdb write Bespoke-model
+```
+
+To write multiple Stan programs to file, you must supply a quoted comma
+separated list of Stan program model_names.
+
+```
+minipdb write "Bespoke-model, Other-model, And-More-models"
+```
+
+If the flag `--yes` (or `-y`) is present, then `write` will run automatically
+without stopping to prompt the user to double check their request.

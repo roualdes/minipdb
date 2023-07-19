@@ -69,6 +69,7 @@ rsconnect/
 
 packages/
 models/
+programs/
 test/fake
 test/fake.hpp
 play.py

@@ -11,33 +11,32 @@ import numpy as np
 
 from multiprocessing import Pool, cpu_count
 
-from .tools import table_exists
+from .tools import table_exists, write_stan_model, write_stan_data
 
 """
-Run a Stan program using CmdStanPy.  The Stan model code and data are pulled
-from database table Program.  The sampling algorithm parameters are pulled from
-database table Meta.  As such, the Stan program must be :command:`init` first.
+Run a Stan program using CmdStanPy.  The Stan program, model code and data, are
+pulled from table Program.  The sampling algorithm parameters are pulled from
+table Meta.  As such, the Stan program must be `insert`ed first.
 """
 
 
-def run_model(model_name: str, models_dir: str = "", database_path: str = ""):
+def run_model(model_name: str, programs_dir: str = "", database_path: str = ""):
+
+    programs_dir = pathlib.Path(programs_dir)
 
     db = sqlite3.connect(database_path, detect_types=sqlite3.PARSE_DECLTYPES)
     dfp = pd.read_sql_query("SELECT * FROM Program", db)
     dfm = pd.read_sql_query("SELECT * FROM Meta", db)
 
     idx = dfp["model_name"] == model_name
+
     code = dfp[idx]["code"].values[0]
+    stan_file_path = programs_dir / model_name / (model_name + ".stan")
+    write_stan_model(code, stan_file_path)
 
-    model_dir = pathlib.Path(models_dir) / model_name
-    pathlib.Path(model_dir).mkdir(parents=True, exist_ok=True)
-    stan_file_path = model_dir / (model_name + ".stan")
-    with open(stan_file_path, "w") as f:
-        f.write(code)
-
-    data = json.loads(dfp[idx]["data"].values[0])
-    data_file_path = model_dir / (model_name + ".json")
-    cmdstanpy.write_stan_json(data_file_path, data)
+    data = dfp[idx]["data"].values[0]
+    data_file_path = programs_dir / model_name / (model_name + ".json")
+    write_stan_data(data, data_file_path)
 
     stan_file = str(stan_file_path)
     data_file = str(data_file_path)
@@ -108,15 +107,15 @@ def run(args: dict):
             if ans != "Yes":
                 sys.exit("Run canceled.")
 
-    model_folder = pathlib.Path().resolve() / "models"
-    run_model(model_name, models_dir=model_folder, database_path=database)
+    programs_folder = pathlib.Path().resolve() / "programs"
+    run_model(model_name, programs_dir=programs_folder, database_path=database)
 
     db.close()
     print("Done.")
 
 
 def run_all(args: dict):
-    print(f"Running and storing reference draws for all models in database...")
+    print(f"Running and storing reference draws for all programs in database...")
 
     if not args["yes"] and args["overwrite"]:
         ans = input(
@@ -130,7 +129,7 @@ def run_all(args: dict):
 
     dfprogram = pd.read_sql_query("SELECT * FROM Program", db)
     dfmeta = pd.read_sql_query("SELECT * FROM Meta", db)
-    model_folder = pathlib.Path().resolve() / "models"
+    programs_folder = pathlib.Path().resolve() / "programs"
 
     model_names = dfprogram["model_name"].values
 
@@ -142,7 +141,7 @@ def run_all(args: dict):
 
     with Pool(args["cpus"]) as p:
         f = functools.partial(
-            run_model, models_dir=model_folder, database_path=database
+            run_model, programs_dir=programs_folder, database_path=database
         )
         p.map(f, model_names)
 

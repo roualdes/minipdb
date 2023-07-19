@@ -16,7 +16,7 @@ def delete(args: dict):
         if ans != "Yes":
             sys.exit("Canceled delete.")
 
-    print(f"deleting {model_name}...")
+    print(f"Deleting {model_name}...")
 
     database = args["database"]
     db = sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES)

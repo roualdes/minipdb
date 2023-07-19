@@ -101,6 +101,17 @@ cmd_delete.add_argument(
 )
 cmd_delete.set_defaults(func=minipdb.delete)
 
+
+cmd_write = subparsers.add_parser(
+    "write",
+    help = "write Stan programs to file (programs/{model_name}/{model_name}.{stan,json})"
+)
+cmd_write.add_argument(
+    "programs",
+    help = "comma separated list of model_names for already inserted Stan programs. If non specified, write all."
+)
+cmd_write.set_defaults(func=minipdb.write)
+
 if __name__ == "__main__":
     args = parser.parse_args()
     args.func(vars(args))

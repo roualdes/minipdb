@@ -15,4 +15,4 @@ def pytest_configure(config):
 
 def pytest_unconfigure(config):
     database.unlink()
-    shutil.rmtree(str(cwd.parent / "models"))
+    shutil.rmtree(str(cwd.parent / "programs"))
