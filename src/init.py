@@ -19,7 +19,8 @@ def init(args):
             )
             if ans != "Yes":
                 sys.exit("Canceled download.")
-    database.unlink()
+        database.unlink()
+
     if args["download"]:
         print("Downloading database...")
         download_db(database)
