@@ -30,7 +30,7 @@ def write(args: dict):
 
     if not args["yes"]:
         ans = input(
-            f'This operation will overwrite the Stan programs {", ".join(programs)}.\n\nThis operation can not be undone.\n\nAre you sure you want to proceed?\n\nType Yes to continue: '
+            f'This operation will overwrite the Stan programs: {", ".join(programs)}\n\nThis operation can not be undone.\n\nAre you sure you want to proceed?\n\nType Yes to continue: '
         )
         if ans != "Yes":
             sys.exit("Canceled write.")
