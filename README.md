@@ -1,16 +1,22 @@
 # MiniPDB
 
-MiniPDB (Mini-PosteriorDB) contains a subset of
-[PosteriorDB](https://github.com/stan-dev/posteriordb) with similar
-goals, namely easing the comparison and evaluation of MCMC algorithms,
-but MiniPDB also aims to be smaller and simpler.
+MiniPDB (Mini-PosteriorDB) is a database of
+[Stan](https://mc-stan.org/) programs, some of which overlap with the
+Stan programs found in
+[PosteriorDB](https://github.com/stan-dev/posteriordb), and has
+similar goals with PosteriorDB, namely helping comparison and
+evaluation of MCMC algorithms.  MiniPDB also aims to be smaller and
+simpler.
 
-The subset consists of only those PosteriorDB Stan programs that
-contain reference draws and only [Stan](https://mc-stan.org/) programs
-(code and data) and inference information ([sample](https://cmdstanpy.readthedocs.io/en/v1.2.0/api.html#cmdstanpy.CmdStanModel.sample) settings and summary
-statistics).  MiniPDB does not contain any reference draws, and
-instead stores the information necessary to recreate (similar, albeit
-not exactly) the reference draws.  The entire database (< 1MB) is one
+MiniPDB contains only those PosteriorDB Stan programs that contain
+reference draws, and a few other Stan programs not found in
+PosteriorDB.  However no reference draws are stored in the MiniPDB
+database.  Instead, MiniPDB stores the information necessary to
+recreate (similar, albeit not exactly) the reference draws.  The
+MiniPDB database contains Stan programs (code and data) and inference
+information
+([sample](https://cmdstanpy.readthedocs.io/en/v1.2.0/api.html#cmdstanpy.CmdStanModel.sample)
+settings and summary statistics).  The entire database (< 1MB) is one
 [Parquet](https://parquet.apache.org) file hosted within this
 repository: `minipdb.parquet`.
 

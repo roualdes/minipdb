@@ -97,4 +97,4 @@ def create_minipdb(pdb_path: str):
     df.to_parquet("minipdb.parquet")
 
 
-create_minipdb(pathlib.Path.home() / "posteriordb/posterior_database")
+# create_minipdb(pathlib.Path.home() / "posteriordb/posterior_database")
