@@ -109,7 +109,7 @@ def program(ctx, model_name, directory):
         if ctx.obj["VERBOSE"] > 0:
             click.echo(f"Writing all programs of minipdb into {directory} ...")
         if not ctx.obj["DRY"]:
-            df = get_model_as_df()
+            df = get_models_as_df()
     else:
         if ctx.obj["VERBOSE"] > 0:
             click.echo(f"Writing program {model_name} into {directory} ...")
@@ -138,7 +138,7 @@ def inference(ctx, model_name, directory):
         if ctx.obj["VERBOSE"] > 0:
             click.echo(f"Writing all inference info of minipdb into {directory} ...")
         if not ctx.obj["DRY"]:
-            df = get_model_as_df()
+            df = get_models_as_df()
     else:
         if ctx.obj["VERBOSE"] > 0:
             click.echo(f"Writing inference info for program {model_name} into {directory} ...")
