@@ -3,7 +3,7 @@ import pathlib
 
 import duckdb as dk
 
-DBURL = "https://github.com/roualdes/minipdb/raw/duckdb/minipdb/minipdb.parquet"
+DBURL = "https://github.com/roualdes/minipdb/raw/duckdb/minipdb.parquet"
 
 def get_model_row_as_df(model_name):
     df = dk.sql(f"SELECT * FROM '{DBURL}' where model_name = '{model_name}'").df()

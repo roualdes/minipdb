@@ -17,9 +17,9 @@ def summarize_pdb_draws(df):
         summary["mean"][p].append(np.mean(data))
         summary["std"][p].append(np.std(data, ddof = 1))
         q05, q50, q95 = np.quantile(data, [0.05, 0.50, 0.95])
-        summary["q05"]["p"] = q05
-        summary["q50"]["p"] = q50
-        summary["q95"]["p"] = q95
+        summary["q05"][p] = q05
+        summary["q50"][p] = q50
+        summary["q95"][p] = q95
     return summary
 
 def check_pdb(pdb_path):
