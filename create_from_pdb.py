@@ -11,11 +11,11 @@ import sys
 def summarize_pdb_draws(df):
     stats = ["mean", "std", "q05", "q50", "q95"]
     params = [col for col in df.columns]
-    summary = {st: {p: [] for p in params} for st in stats}
+    summary = {st: {p: 0.0 for p in params} for st in stats}
     for p in params:
         data = df[p].explode()
-        summary["mean"][p].append(np.mean(data))
-        summary["std"][p].append(np.std(data, ddof = 1))
+        summary["mean"][p] = np.mean(data)
+        summary["std"][p] = np.std(data, ddof = 1)
         q05, q50, q95 = np.quantile(data, [0.05, 0.50, 0.95])
         summary["q05"][p] = q05
         summary["q50"][p] = q50
