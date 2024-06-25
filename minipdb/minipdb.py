@@ -69,7 +69,7 @@ def search(ctx, phrase):
 def download(ctx, directory):
     """Download minipdb to DIRECTORY"""
     if not ctx.obj["YES"]:
-        click.confirm(f"Downloading will overwrite the file minipdb.parquet in {directory}.\n\nReverting download can not be undone.\n\nAre you sure you want to proceed?\n\n",
+        click.confirm(f"Downloading will overwrite the file minipdb.parquet in {directory}.\n\nReverting download is not possible.\n\nAre you sure you want to proceed?\n\n",
                       abort=True)
     if ctx.obj["VERBOSE"] > 0:
         click.echo(f"Downloading minipdb.parquet into {directory} ...")
@@ -103,7 +103,7 @@ def program(ctx, model_name, directory):
     If MODEL_NAME is ALL, write Stan program for every model in minipdb.
     """
     if not ctx.obj["YES"]:
-        click.confirm(f"Writing will overwrite the files in {directory}.\n\nReverting write can not be undone.\n\nAre you sure you want to proceed?\n\n",
+        click.confirm(f"Writing will overwrite the files in {directory}.\n\nReverting write is not possible.\n\nAre you sure you want to proceed?\n\n",
                       abort=True)
     if model_name == "ALL":
         if ctx.obj["VERBOSE"] > 0:
@@ -132,7 +132,7 @@ def inference(ctx, model_name, directory):
     If MODEL_NAME is ALL, write inference info for every model in minipdb.
     """
     if not ctx.obj["YES"]:
-        click.confirm(f"Writing will overwrite the inference info files in {directory}.\n\nReverting write can not be undone.\n\nAre you sure you want to proceed?\n\n",
+        click.confirm(f"Writing will overwrite the inference info files in {directory}.\n\nReverting write is not possible.\n\nAre you sure you want to proceed?\n\n",
                           abort=True)
     if model_name == "ALL":
         if ctx.obj["VERBOSE"] > 0:
