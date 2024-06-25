@@ -3,7 +3,7 @@ import pandas as pd
 
 import json
 
-DBURL = "https://github.com/roualdes/minipdb/raw/duckdb/minipdb/minipdb.parquet"
+DBURL = "https://github.com/roualdes/minipdb/raw/duckdb/minipdb.parquet"
 
 df = dk.sql(f"SELECT * FROM '{DBURL}'").df()
 
