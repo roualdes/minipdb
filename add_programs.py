@@ -7,6 +7,7 @@ def add_stan_programs(stan_dir):
     stan_dir = pathlib.Path(stan_dir)
     df = pd.read_parquet("minipdb.parquet")
     files = set([f.stem for f in stan_dir.glob("*") if f.suffix != ".so"])
+
     for f in files:
         pf = stan_dir / f
         stan_file = pf.with_suffix(".stan")
@@ -23,8 +24,8 @@ def add_stan_programs(stan_dir):
             "summary_stats": ["{}"],
         })
 
-        df = pd.concat([df, df_new])
+        df = pd.concat([df, df_new], ignore_index = True)
 
     df.to_parquet("minipdb.parquet")
 
-# add_stan_programs(pathlib.Path.home() / "adaptive-hmc" / "stan")
+add_stan_programs(pathlib.Path.home() / "adaptive-hmc" / "stan")
