@@ -1,4 +1,5 @@
 from posteriordb import PosteriorDatabase
+from run_tools import get_stan_files, summarize_pdb_draws
 
 import pandas as pd
 import numpy as np
@@ -7,20 +8,6 @@ import json
 import pathlib
 import random
 import sys
-
-def summarize_pdb_draws(df):
-    stats = ["mean", "std", "q05", "q50", "q95"]
-    params = [col for col in df.columns]
-    summary = {st: {p: 0.0 for p in params} for st in stats}
-    for p in params:
-        data = df[p].explode()
-        summary["mean"][p] = np.mean(data)
-        summary["std"][p] = np.std(data, ddof = 1)
-        q05, q50, q95 = np.quantile(data, [0.05, 0.50, 0.95])
-        summary["q05"][p] = q05
-        summary["q50"][p] = q50
-        summary["q95"][p] = q95
-    return summary
 
 def check_pdb(pdb_path):
     try:
@@ -69,7 +56,6 @@ def create_minipdb(pdb_path: str):
                                  "inference_info": ["defaults"] * number_models,
                                  "summary_stats": ["summary"] * number_models})
 
-    # TODO need save data as well
     for model_name in model_names:
         meta = {}
         idx = df["model_name"] == model_name

@@ -28,4 +28,4 @@ def add_stan_programs(stan_dir):
 
     df.to_parquet("minipdb.parquet")
 
-add_stan_programs(pathlib.Path.home() / "adaptive-hmc" / "stan")
+# add_stan_programs(pathlib.Path.home() / "adaptive-hmc" / "stan")
